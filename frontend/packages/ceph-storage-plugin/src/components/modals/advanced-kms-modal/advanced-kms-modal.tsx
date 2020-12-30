@@ -146,6 +146,7 @@ export const AdvancedKMSModal = withHandlePromise((props: AdvancedKMSModalProps)
               onChange={setBackendPath}
               type="text"
               id="kms-service-backend-path"
+              data-test="kms-service-backend-path-text"
               name="kms-service-backend-path"
               placeholder={t('ceph-storage-plugin~path/')}
             />

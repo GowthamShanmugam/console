@@ -139,6 +139,7 @@ export const EncryptionFormGroup: React.FC<EncryptionFormGroupProps> = ({
           >
             <Checkbox
               id="cluster-wide-encryption"
+              data-test="cluster-wide-encryption-checkbox"
               isChecked={encryption.clusterWide}
               label={
                 <span className="ocs-install-encryption__pv-title--padding">
@@ -171,6 +172,7 @@ export const EncryptionFormGroup: React.FC<EncryptionFormGroupProps> = ({
           >
             <Checkbox
               id="advanced-encryption"
+              data-test="advanced-encryption-checkbox"
               isChecked={encryption.advanced}
               label={t('ceph-storage-plugin~Connect to an external key management service')}
               onChange={toggleAdvancedEncryption}

@@ -1,28 +1,33 @@
-import * as _ from 'lodash';
 import '../../../integration-tests-cypress/support/index.ts';
 import { wizard } from '../../../integration-tests-cypress/views/wizard';
 import { commonFlows } from '../views/common';
+import { configureKMS } from '../views/kms-config';
 
 declare global {
   namespace Cypress {
     interface Chainable<Subject> {
-      install(mode?: 'Internal' | 'Attached', encrypted?: boolean): Chainable<Element>;
+      install(
+        mode?: 'Internal' | 'Attached',
+        encrypted?: boolean,
+        enableKMS?: boolean,
+      ): Chainable<Element>;
     }
   }
 }
 
-Cypress.Commands.add('install', (mode: 'Internal' | 'Attached' = 'Internal', encrypted = false) => {
-  cy.exec('oc get storagecluster ocs-storagecluster -n openshift-storage', {
-    failOnNonZeroExit: false,
-  }).then(({ code }) => {
-    // Only run Installation if the Storage Cluster doesn't already exist
-    if (code !== 0) {
-      cy.log('Perform OCS Installation and cluster creation');
-      cy.log('Search in Operator Hub');
-      cy.clickNavLink(['Operators', 'OperatorHub']);
-      cy.byTestID('search-operatorhub').type('Openshift Container Storage');
-      cy.byTestID('ocs-operator-redhat-operators-openshift-marketplace').click();
-
+Cypress.Commands.add(
+  'install',
+  (mode: 'Internal' | 'Attached' = 'Internal', encrypted = true, enableKMS = true) => {
+    cy.exec('oc get storagecluster ocs-storagecluster -n openshift-storage', {
+      failOnNonZeroExit: false,
+    }).then(({ code }) => {
+      // Only run Installation if the Storage Cluster doesn't already exist
+      if (code !== 0) {
+        cy.log('Perform OCS Installation and cluster creation');
+        cy.log('Search in Operator Hub');
+        cy.clickNavLink(['Operators', 'OperatorHub']);
+        cy.byTestID('search-operatorhub').type('Openshift Container Storage');
+        cy.byTestID('ocs-operator-redhat-operators-openshift-marketplace').click();
       cy.log('Subscribe to OCS Operator');
       cy.byLegacyTestID('operator-install-btn').click({ force: true });
       cy.byTestID('Operator recommended Namespace:-radio-input').should('be.checked');
@@ -62,7 +67,7 @@ Cypress.Commands.add('install', (mode: 'Internal' | 'Attached' = 'Internal', enc
 
       // Step 1
       // Select all worker Nodes
-      commonFlows.checkAll().check();
+      commonFlows.checkAll();
       commonFlows.checkAll().should('be.checked');
       // Two dropdowns in the same page.
       // (Todo: )make dropdown data-test-id be something that can be passed as a prop
@@ -75,32 +80,40 @@ Cypress.Commands.add('install', (mode: 'Internal' | 'Attached' = 'Internal', enc
       // Step 2
       if (encrypted) {
         cy.log('Enabling Encryption');
-        cy.byTestID('encryption-checkbox').click();
+        cy.byTestID('encryption-checkbox').check();
+        cy.byTestID('encryption-checkbox').should('be.checked');
+
+        // Cluster wide encryption is the default
+        cy.byTestID('cluster-wide-encryption-checkbox').should('be.checked');
+        if (enableKMS) configureKMS();
       }
       wizard.next();
 
-      // Final Step
-      wizard.create();
+        // Final Step
+        wizard.create();
 
-      cy.log('Verify all worker nodes are labelled');
-      cy.exec('oc get nodes -o json').then((res) => {
-        const { items } = JSON.parse(res.stdout);
-        items
-          .map((item) => item.metadata.labels)
-          .filter((item) => item.hasOwnProperty('node-role.kubernetes.io/worker'))
-          .forEach((item) =>
-            expect(item.hasOwnProperty('cluster.ocs.openshift.io/openshift-storage')).toBeTruthy(),
-          );
-      });
+        cy.log('Verify all worker nodes are labelled');
+        cy.exec('oc get nodes -o json').then((res) => {
+          const { items } = JSON.parse(res.stdout);
+          items
+            .map((item) => item.metadata.labels)
+            .filter((item) => item.hasOwnProperty('node-role.kubernetes.io/worker'))
+            .forEach((item) =>
+              expect(
+                item.hasOwnProperty('cluster.ocs.openshift.io/openshift-storage'),
+              ).toBeTruthy(),
+            );
+        });
 
-      // Wait for the storage cluster to reach Ready
-      // Storage Cluster CR flickers so wait for 10 seconds
-      // Disablng until ocs-operator fixes above issue
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(10000);
-      cy.byTestID('resource-status').contains('Ready', { timeout: 900000 });
-    } else {
-      cy.log('OCS Storage Cluster is already Installed. Proceeding without installation');
-    }
-  });
-});
+        // Wait for the storage cluster to reach Ready
+        // Storage Cluster CR flickers so wait for 10 seconds
+        // Disablng until ocs-operator fixes above issue
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
+        cy.wait(10000);
+        cy.byTestID('resource-status').contains('Ready', { timeout: 900000 });
+      } else {
+        cy.log('OCS Storage Cluster is already Installed. Proceeding without installation');
+      }
+    });
+  },
+);

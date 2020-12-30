@@ -100,6 +100,7 @@ export const KMSConfigure: React.FC<KMSConfigureProps> = ({ state, dispatch, mod
           value={kmsProvider}
           onChange={setKMSProvider}
           id="kms-provider"
+          data-test="kms-provider-dropdown"
           name="kms-provider-name"
           aria-label={t('ceph-storage-plugin~kms-provider-name')}
           isDisabled
@@ -122,6 +123,7 @@ export const KMSConfigure: React.FC<KMSConfigureProps> = ({ state, dispatch, mod
           onChange={setServiceName}
           type="text"
           id="kms-service-name"
+          data-test="kms-service-name-text"
           name="kms-service-name"
           isRequired
           validated={isValid(kms.name.valid)}
@@ -142,6 +144,7 @@ export const KMSConfigure: React.FC<KMSConfigureProps> = ({ state, dispatch, mod
             className="ocs-install-kms__form-address--padding"
             type="url"
             id="kms-address"
+            data-test="kms-address-text"
             name="kms-address"
             isRequired
             validated={isValid(kms.address.valid)}
@@ -163,6 +166,7 @@ export const KMSConfigure: React.FC<KMSConfigureProps> = ({ state, dispatch, mod
             onChange={setAddressPort}
             type="text"
             id="kms-address-port"
+            data-test="kms-address-port-text"
             name="kms-address-port"
             isRequired
             validated={isValid(kms.port.valid)}
@@ -183,13 +187,19 @@ export const KMSConfigure: React.FC<KMSConfigureProps> = ({ state, dispatch, mod
             onChange={setToken}
             type="password"
             id="kms-token"
+            data-test="kms-token-text"
             name="kms-token"
             isRequired
             validated={isValid(kms.token.valid)}
           />
         </FormGroup>
       )}
-      <Button variant="link" className={`${className}__form-body`} onClick={openAdvancedModal}>
+      <Button
+        variant="link"
+        className={`${className}__form-body`}
+        onClick={openAdvancedModal}
+        data-test="kms-advanced-settings-link"
+      >
         {t('ceph-storage-plugin~Advanced Settings')}{' '}
         {(kms.backend ||
           kms.caCert ||

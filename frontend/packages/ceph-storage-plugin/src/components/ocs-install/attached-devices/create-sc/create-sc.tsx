@@ -137,36 +137,42 @@ const CreateSC: React.FC<CreateSCProps> = ({ match, hasNoProvSC, mode, lsoNs }) 
   const flagDispatcher = useDispatch();
 
   React.useEffect(() => {
-    if (discoveriesLoaded && !discoveriesLoadError && discoveriesData.length) {
-      const nodesDiscoveries: Discoveries[] = discoveriesData.reduce((res, nodeDiscovery) => {
-        const name = nodeDiscovery?.spec?.nodeName;
-        const selectedNodes = getNodes(
-          state.showNodesListOnADV,
-          state.allNodeNamesOnADV,
-          state.nodeNamesForLVS,
-        );
+    try {
+      // enable the flag
 
-        let availableDisks: Discoveries[] = [];
-        if (selectedNodes.includes(name)) {
-          const discoveries = nodeDiscovery?.status?.discoveredDevices ?? [];
-          availableDisks = discoveries.filter((discovery) => {
-            // filter out non supported disks
-            if (
-              discovery?.status?.state === AVAILABLE &&
-              (discovery.type === DiskType.RawDisk || discovery.type === DiskType.Partition)
-            ) {
-              discovery.node = name;
-              return true;
-            }
-            return false;
-          });
-        }
-        return [...res, ...availableDisks];
-      }, []);
+      if (discoveriesLoaded && !discoveriesLoadError && discoveriesData.length) {
+        const nodesDiscoveries: Discoveries[] = discoveriesData.reduce((res, nodeDiscovery) => {
+          const name = nodeDiscovery?.spec?.nodeName;
+          const selectedNodes = getNodes(
+            state.showNodesListOnADV,
+            state.allNodeNamesOnADV,
+            state.nodeNamesForLVS,
+          );
 
-      dispatch({ type: 'setNodesDiscoveries', value: nodesDiscoveries });
-      const capacity = getTotalDeviceCapacity(nodesDiscoveries);
-      dispatch({ type: 'setChartTotalData', value: capacity });
+          let availableDisks: Discoveries[] = [];
+          if (selectedNodes.includes(name)) {
+            const discoveries = nodeDiscovery?.status?.discoveredDevices ?? [];
+            availableDisks = discoveries.filter((discovery) => {
+              // filter out non supported disks
+              if (
+                discovery?.status?.state === AVAILABLE &&
+                (discovery.type === DiskType.RawDisk || discovery.type === DiskType.Partition)
+              ) {
+                discovery.node = name;
+                return true;
+              }
+              return false;
+            });
+          }
+          return [...res, ...availableDisks];
+        }, []);
+
+        dispatch({ type: 'setNodesDiscoveries', value: nodesDiscoveries });
+        const capacity = getTotalDeviceCapacity(nodesDiscoveries);
+        dispatch({ type: 'setChartTotalData', value: capacity });
+      }
+    } finally {
+      // disable the flag
     }
   }, [
     discoveriesData,

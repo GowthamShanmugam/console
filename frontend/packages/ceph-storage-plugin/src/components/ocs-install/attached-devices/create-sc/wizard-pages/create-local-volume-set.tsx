@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Form, Alert, Button } from '@patternfly/react-core';
-import { Modal, useFlag } from '@console/shared';
+import { Modal } from '@console/shared';
 import { k8sCreate } from '@console/internal/module/k8s';
 import { LocalVolumeSetModel } from '@console/local-storage-operator-plugin/src/models';
-
-import { GUARDED_FEATURES } from '../../../../../features';
 import {
   LocalVolumeSetInner,
   LocalVolumeSetHeader,
@@ -110,7 +108,6 @@ type CreateLocalVolumeSetProps = {
 
 const ConfirmationModal = ({ state, dispatch, setInProgress, setErrorMessage, ns }) => {
   const { t } = useTranslation();
-  const isArbiterSupported = useFlag(GUARDED_FEATURES.OCS_ARBITER);
 
   const makeLVSCall = () => {
     dispatch({ type: 'setShowConfirmModal', value: false });
@@ -128,12 +125,10 @@ const ConfirmationModal = ({ state, dispatch, setInProgress, setErrorMessage, ns
           'ceph-storage-plugin~After the volume set and storage class are created you wont be able to go back to this step.',
         )}
       </span>
-      {isArbiterSupported && (
-        <p className="pf-u-pt-sm">
-          <strong>{t('ceph-storage-plugin~Note:')} </strong>
-          {arbiterText(t)}
-        </p>
-      )}
+      <p className="pf-u-pt-sm">
+        <strong>{t('ceph-storage-plugin~Note:')} </strong>
+        {arbiterText(t)}
+      </p>
     </>
   );
 

@@ -10,10 +10,14 @@ import {
 } from '@console/internal/models';
 import { WatchK8sResource } from '@console/internal/components/utils/k8s-watch-hook';
 import { SubscriptionModel } from '@console/operator-lifecycle-manager';
-import { LocalVolumeDiscoveryResult } from '@console/local-storage-operator-plugin/src/models';
+import {
+  LocalVolumeDiscoveryResult,
+  LocalVolumeDiscovery,
+} from '@console/local-storage-operator-plugin/src/models';
 import { CephClusterModel, CephBlockPoolModel, OCSServiceModel } from '../models';
 import { CEPH_STORAGE_NAMESPACE } from '.';
 import { CAPACITY_USAGE_QUERIES, StorageDashboardQuery } from './queries';
+import { DISCOVERY_CR_NAME } from '@console/local-storage-operator-plugin/src/constants';
 
 export const cephClusterResource: FirehoseResource = {
   kind: referenceForModel(CephClusterModel),
@@ -74,6 +78,13 @@ export const nodeResource: WatchK8sResource = {
 
 export const nodesDiscoveriesResource: WatchK8sResource = {
   kind: referenceForModel(LocalVolumeDiscoveryResult),
+  namespaced: false,
+  isList: true,
+};
+
+export const nodesDiscoveriesResourceNew: WatchK8sResource = {
+  kind: referenceForModel(LocalVolumeDiscovery),
+  fieldSelector: `metadata.name=${DISCOVERY_CR_NAME}`,
   namespaced: false,
   isList: true,
 };

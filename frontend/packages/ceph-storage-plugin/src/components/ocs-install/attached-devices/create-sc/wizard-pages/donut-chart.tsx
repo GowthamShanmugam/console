@@ -2,9 +2,12 @@ import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@patternfly/react-core';
 import { ChartDonut, ChartLabel } from '@patternfly/react-charts';
-
 import { calculateRadius, Modal } from '@console/shared';
-import { convertToBaseValue, humanizeBinaryBytes } from '@console/internal/components/utils/';
+import {
+  convertToBaseValue,
+  humanizeBinaryBytes,
+  LoadingInline,
+} from '@console/internal/components/utils/';
 import { NodeModel } from '@console/internal/models';
 import { ListPage } from '@console/internal/components/factory';
 import { getNodes } from '@console/local-storage-operator-plugin/src/utils';
@@ -12,6 +15,11 @@ import { DiskListModal } from './disk-list';
 import { State, Action, Discoveries } from '../state';
 import { getTotalDeviceCapacity } from '../../../../../utils/install';
 import AttachedDevicesNodeTable from '../../sc-node-list';
+import { useK8sWatchResource } from '@console/internal/components/utils/k8s-watch-hook';
+import { K8sResourceKind } from '@console/internal/module/k8s';
+
+import { nodesDiscoveriesResourceNew } from '../../../../../constants/resources';
+
 import {
   DISK_TYPES,
   deviceTypeDropdownItems,
@@ -20,6 +28,12 @@ import '../../attached-devices.scss';
 
 export const DiscoveryDonutChart: React.FC<DiscoveryDonutChartProps> = ({ state, dispatch }) => {
   const { t } = useTranslation();
+
+  const [isLoadDonutChart, setFlag] = React.useState(false);
+
+  const [discoveriesData, discoveriesLoaded, discoveriesLoadError] = useK8sWatchResource<
+    K8sResourceKind[]
+  >(nodesDiscoveriesResourceNew);
 
   const [availableCapacityStr, setAvailableCapacityStr] = React.useState('');
   const donutData = [
@@ -31,6 +45,12 @@ export const DiscoveryDonutChart: React.FC<DiscoveryDonutChartProps> = ({ state,
   ];
   const nodes = getNodes(state.showNodesListOnLVS, state.nodeNamesForLVS, state.nodeNames);
   const { podStatusInnerRadius: innerRadius, podStatusOuterRadius: radius } = calculateRadius(220);
+
+  React.useEffect(() => {
+    if (discoveriesLoaded && !discoveriesLoadError && discoveriesData.length) {
+      setFlag(discoveriesData[0].status?.conditions[0]?.status === 'True');
+    }
+  }, [discoveriesData, discoveriesLoaded, discoveriesLoadError]);
 
   React.useEffect(() => {
     const filterDisks = () => {
@@ -138,24 +158,27 @@ export const DiscoveryDonutChart: React.FC<DiscoveryDonutChartProps> = ({ state,
           )}
         </div>
       </div>
-      <ChartDonut
-        ariaDesc={t('ceph-storage-plugin~Selected versus Available Capacity')}
-        ariaTitle={t('ceph-storage-plugin~Selected versus Available Capacity')}
-        height={220}
-        width={220}
-        innerRadius={innerRadius}
-        radius={radius}
-        data={donutData}
-        labels={({ datum }) => `${humanizeBinaryBytes(datum.y).string} ${datum.x}`}
-        subTitle={t('ceph-storage-plugin~Out of {{capacity}}', {
-          capacity: humanizeBinaryBytes(state.chartTotalData).string,
-        })}
-        title={availableCapacityStr}
-        constrainToVisibleArea
-        subTitleComponent={
-          <ChartLabel dy={5} style={{ fill: `var(--pf-global--palette--black-500)` }} />
-        }
-      />
+      {(isLoadDonutChart && (
+        <ChartDonut
+          ariaDesc={t('ceph-storage-plugin~Selected versus Available Capacity')}
+          ariaTitle={t('ceph-storage-plugin~Selected versus Available Capacity')}
+          height={220}
+          width={220}
+          innerRadius={innerRadius}
+          radius={radius}
+          data={donutData}
+          labels={({ datum }) => `${humanizeBinaryBytes(datum.y).string} ${datum.x}`}
+          subTitle={t('ceph-storage-plugin~Out of {{capacity}}', {
+            capacity: humanizeBinaryBytes(state.chartTotalData).string,
+          })}
+          title={availableCapacityStr}
+          constrainToVisibleArea
+          subTitleComponent={
+            <ChartLabel dy={5} style={{ fill: `var(--pf-global--palette--black-500)` }} />
+          }
+        />
+      )) ||
+        (!isLoadDonutChart && <LoadingInline />)}
       <DiskListModal state={state} dispatch={dispatch} />
       <NodeListModal state={state} dispatch={dispatch} />
     </div>

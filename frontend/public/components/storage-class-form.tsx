@@ -47,7 +47,7 @@ const defaultState = {
     type: null,
     parameters: {},
     reclaim: null,
-    expansion: false,
+    expansion: true,
   },
   customParams: [['', '']],
   validationSuccessful: false,
@@ -74,7 +74,7 @@ export class StorageClassForm_ extends React.Component<
     title: '',
     provisioner: '',
     parameters: {},
-    allowVolumeExpansion: false,
+    allowVolumeExpansion: true,
   };
 
   storageTypes = {};
@@ -862,10 +862,12 @@ export class StorageClassForm_ extends React.Component<
       if (parameter.Component) {
         const { Component } = parameter;
         return (
-          <Component
-            key={key}
-            onParamChange={(value: string) => this.setParameterHandler(key, value, false)}
-          />
+          <div className="form-group">
+            <Component
+              key={key}
+              onParamChange={(value: string) => this.setParameterHandler(key, value, false)}
+            />
+          </div>
         );
       }
 
@@ -891,11 +893,11 @@ export class StorageClassForm_ extends React.Component<
         <>
           {isCheckbox ? (
             <>
-              <div className="checkbox">
+              <div className="checkbox create-storage-class-form__checkbox">
                 <label>
                   <input
                     type="checkbox"
-                    className="create-storage-class-form__checkbox"
+                    className="create-storage-class-form__checkbox__input"
                     onChange={(event) => this.setParameterHandler(key, event, isCheckbox)}
                     checked={_.get(this.state, selectedKey, false)}
                     id={`provisioner-settings-${key}-checkbox`}
@@ -1060,6 +1062,10 @@ export class StorageClassForm_ extends React.Component<
             </span>
           </div>
 
+          <div className="co-form-subsection">
+            {newStorageClass.type !== null ? this.getProvisionerElements() : null}
+          </div>
+
           {expansionFlag && (
             <div className="checkbox">
               <label>
@@ -1073,10 +1079,6 @@ export class StorageClassForm_ extends React.Component<
               </label>
             </div>
           )}
-
-          <div className="co-form-subsection">
-            {newStorageClass.type !== null ? this.getProvisionerElements() : null}
-          </div>
 
           <ButtonBar
             errorMessage={this.state.error ? this.state.error.message : ''}

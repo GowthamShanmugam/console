@@ -89,6 +89,13 @@ export const StorageClassFormProvisoners: ExtensionSCProvisionerProp = Object.fr
           hintText: 'A unique ID matching KMS ConfigMap',
           Component: StorageClassEncryptionKMSID,
         },
+        thickProvision: {
+          name: 'Enable Thick Provisioning',
+          hintText:
+            'By enabling thick-provisioning, volumes will allocate the requested capacity upon volume creation. Volume creation to be slower when thick-provisioning is enabled.',
+          type: 'checkbox',
+          format: (value) => value.toString(),
+        },
       },
     },
     'openshift-storage.cephfs.csi.ceph.com': {

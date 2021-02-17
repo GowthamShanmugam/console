@@ -136,7 +136,7 @@ export const PoolResourceComponent: React.FC<ProvisionerProps> = ({ onParamChang
     return (
       <>
         {!poolDataLoadError && cephClusterObj && (
-          <div className="form-group">
+          <>
             <label className="co-required" htmlFor="ocs-storage-pool">
               {t('ceph-storage-plugin~Storage Pool')}
             </label>
@@ -160,7 +160,7 @@ export const PoolResourceComponent: React.FC<ProvisionerProps> = ({ onParamChang
             <span className="help-block">
               {t('ceph-storage-plugin~Storage pool into which volume data shall be stored')}
             </span>
-          </div>
+          </>
         )}
         {(poolDataLoadError || loadError) && (
           <Alert
@@ -403,12 +403,14 @@ export const StorageClassEncryption: React.FC<ProvisionerProps> = ({ onParamChan
             isChecked={checked}
             label={<StorageClassEncryptionLabel />}
             aria-label={t('ceph-storage-plugin~Storage class encryption')}
-            description={t(
-              'ceph-storage-plugin~An encryption key for each Persistent volume (block only) will be generated.',
-            )}
             onChange={setChecked}
             className="ocs-storageClass-encryption__form-checkbox"
           />
+          <span className="help-block">
+            {t(
+              'ceph-storage-plugin~An encryption key for each Persistent volume (block only) will be generated.',
+            )}
+          </span>
 
           {checked && (
             <>

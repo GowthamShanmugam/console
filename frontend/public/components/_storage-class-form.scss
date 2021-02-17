@@ -1,3 +1,8 @@
 .create-storage-class-form__checkbox {
-  width: inherit;
+  margin-bottom: var(--pf-global--spacer--sm) 0;
+  
+  &__input {
+    width: inherit;
+  }
 }
+

@@ -12,6 +12,20 @@ namespace ExtensionProperties {
     /** action callback */
     callback: (kind: K8sResourceKindReference, obj: any) => () => any;
   }
+
+  export interface ClusterServiceVersionList {
+    /** the kind this list is for */
+    kind: K8sResourceKindReference;
+    /** API group of the resource */
+    apiGroup: string;
+    /** action callback */
+    callback: (kind: K8sResourceKindReference, obj: any) => () => any;
+  }
+}
+
+export interface ClusterServiceVersionList
+  extends Extension<ExtensionProperties.ClusterServiceVersionList> {
+  type: 'ClusterServiceVersion/List';
 }
 
 export interface ClusterServiceVersionAction
@@ -21,3 +35,7 @@ export interface ClusterServiceVersionAction
 
 export const isClusterServiceVersionAction = (e: Extension): e is ClusterServiceVersionAction =>
   e.type === 'ClusterServiceVersion/Action';
+
+export const isClusterServiceVersionList = (e: Extension): e is ClusterServiceVersionList =>
+  e.type === 'ClusterServiceVersion/List';
+

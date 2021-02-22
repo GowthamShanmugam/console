@@ -13,11 +13,13 @@ import {
   ModelFeatureFlag,
   Plugin,
   ResourceTabPage,
+  ResourceListPage,
   RoutePage,
   ResourceDetailsPage,
   DashboardsOverviewResourceActivity,
   CustomFeatureFlag,
   StorageClassProvisioner,
+  ClusterServiceVersionList,
 } from '@console/plugin-sdk';
 import { ClusterServiceVersionModel } from '@console/operator-lifecycle-manager/src/models';
 import { GridPosition } from '@console/shared/src/components/dashboard/DashboardGrid';
@@ -40,6 +42,7 @@ import {
 } from './features';
 import { getAlertActionPath } from './utils/alert-action-path';
 import { OSD_DOWN_ALERT, OSD_DOWN_AND_OUT_ALERT } from './constants';
+import { CephBlockPoolModel } from './models';
 
 type ConsumedExtensions =
   | AlertAction
@@ -55,8 +58,10 @@ type ConsumedExtensions =
   | ClusterServiceVersionAction
   | KebabActions
   | ResourceDetailsPage
+  | ResourceListPage
   | ResourceTabPage
   | ClusterServiceVersionAction
+  | ClusterServiceVersionList
   | KebabActions
   | DashboardsOverviewResourceActivity
   | StorageClassProvisioner;
@@ -299,6 +304,22 @@ const plugin: Plugin<ConsumedExtensions> = [
     },
     flags: {
       disallowed: [OCS_INDEPENDENT_FLAG],
+    },
+  },
+  {
+    type: 'ClusterServiceVersion/List',
+    properties: {
+      kind: 'CephBlockPool',
+      apiGroup: models.OCSServiceModel.apiGroup,
+      callback: (kind) => () => {
+        import(
+          './components/ocs-install/test-pages' /* webpackChunkName: "ceph-storage-add-capacity-modal" */
+        )
+          .then((m) => m.DummyResourceListPage())
+          .catch((e) => {
+            throw e;
+          });
+      },
     },
   },
   {

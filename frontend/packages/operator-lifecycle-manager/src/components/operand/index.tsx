@@ -59,6 +59,8 @@ import {
   ClusterServiceVersionAction,
   useExtensions,
   isClusterServiceVersionAction,
+  ClusterServiceVersionList,
+  isClusterServiceVersionList,
 } from '@console/plugin-sdk';
 import { CustomResourceDefinitionModel } from '@console/internal/models';
 import { useK8sModel } from '@console/shared/src/hooks/useK8sModel';
@@ -228,6 +230,19 @@ export const OperandTableRow: React.FC<OperandTableRowProps> = ({ obj, index, ro
 
 export const OperandList: React.FC<OperandListProps> = (props) => {
   const { t } = useTranslation();
+
+  const listExtensions = useExtensions<ClusterServiceVersionList>(
+    isClusterServiceVersionList,
+  );
+  
+  const actions = listExtensions.filter(
+    (action) =>
+      action.properties.kind === kindForReference(props.kinds[0]),
+  );
+  if(actions.length > 0){
+    return (<h1> Overridded List </h1>);
+  }
+
   const Header = () => {
     return [
       {

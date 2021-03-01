@@ -69,6 +69,7 @@ type ConsumedExtensions =
   | ResourceListPage;
 
 const apiObjectRef = referenceForModel(models.OCSServiceModel);
+const blockPoolObjectRef = referenceForModel(models.CephBlockPoolModel);
 
 const plugin: Plugin<ConsumedExtensions> = [
   {
@@ -467,11 +468,15 @@ const plugin: Plugin<ConsumedExtensions> = [
       required: [LSO_DEVICE_DISCOVERY, OCS_ATTACHED_DEVICES_FLAG],
     },
   },
+<<<<<<< HEAD
   // Noobaa Related Plugins
+=======
+>>>>>>> afd7f118a (Pool management list and creation)
   {
     type: 'Page/Route',
     properties: {
       exact: true,
+<<<<<<< HEAD
       path: `/k8s/ns/:ns/${ClusterServiceVersionModel.plural}/:appName/${referenceForModel(
         models.NooBaaBucketClassModel,
       )}/~new`,
@@ -739,6 +744,14 @@ const plugin: Plugin<ConsumedExtensions> = [
           // eslint-disable-next-line no-console
           .catch((e) => console.error(e)),
     },
+=======
+      path: `/k8s/ns/:ns/${ClusterServiceVersionModel.plural}/:appName/${blockPoolObjectRef}/~new`,
+      loader: () =>
+        import('./components/block-pool/block-pool' /* webpackChunkName: "install-page" */).then(
+          (m) => m.default,
+        ),
+    },
+>>>>>>> afd7f118a (Pool management list and creation)
   },
 ];
 

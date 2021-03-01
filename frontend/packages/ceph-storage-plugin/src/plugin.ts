@@ -69,6 +69,7 @@ type ConsumedExtensions =
   | ResourceListPage;
 
 const apiObjectRef = referenceForModel(models.OCSServiceModel);
+const blockPoolObjectRef = referenceForModel(models.CephBlockPoolModel);
 
 const plugin: Plugin<ConsumedExtensions> = [
   {
@@ -738,6 +739,17 @@ const plugin: Plugin<ConsumedExtensions> = [
           .then((m) => m.default({ bucketClass: obj, modalClassName: 'nb-modal' }))
           // eslint-disable-next-line no-console
           .catch((e) => console.error(e)),
+    },
+  },
+  {
+    type: 'Page/Route',
+    properties: {
+      exact: true,
+      path: `/k8s/ns/:ns/${ClusterServiceVersionModel.plural}/:appName/${blockPoolObjectRef}/~new`,
+      loader: () =>
+        import(
+          './components/block-pool/create-block-pool' /* webpackChunkName: "create-block-pool" */
+        ).then((m) => m.default),
     },
   },
 ];

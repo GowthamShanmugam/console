@@ -98,27 +98,33 @@ export const PoolBodyComponent = (props: StoragePoolBodyComponentPros) => {
   ));
 
   // Volume Type
-  const deviceClasses = cephClusterObj[0]?.status?.storage?.deviceClasses;
+  let availableDeviceClasses = [];
   const setVolumeType = (volumeType: string) =>
     dispatch({ type: BlockPoolActionType.SET_POOL_VOLUME_TYPE, payload: volumeType });
-  if (state.volumeType === '') {
-    // Set default value
-    const deviceClassList = deviceClasses.filter((deviceClass) => deviceClass.name === 'ssd');
-    deviceClassList.length ? setVolumeType('ssd') : setVolumeType('hdd');
+  if (isPoolManagementSupported) {
+    if (state.volumeType === '') {
+      // Set default value
+      const deviceClasses = cephClusterObj[0]?.status?.storage?.deviceClasses.filter(
+        (deviceClass) => deviceClass.name === 'ssd',
+      );
+      deviceClasses ? setVolumeType('ssd') : setVolumeType('hdd');
+    }
+
+    // Volume Type dropdown
+    availableDeviceClasses = cephClusterObj[0]?.status?.storage?.deviceClasses.map((device) => {
+      return (
+        <DropdownItem
+          key={`device-${device?.name}`}
+          component="button"
+          id={device?.name}
+          data-test={device?.name}
+          onClick={(e) => setVolumeType(e.currentTarget.id)}
+        >
+          {device?.name.toUpperCase()}
+        </DropdownItem>
+      );
+    });
   }
-  const availableDeviceClasses = deviceClasses.map((device) => {
-    return (
-      <DropdownItem
-        key={`device-${device?.name}`}
-        component="button"
-        id={device?.name}
-        data-test={device?.name}
-        onClick={(e) => setVolumeType(e.currentTarget.id)}
-      >
-        {device?.name.toUpperCase()}
-      </DropdownItem>
-    );
-  });
 
   // Check storage cluster is in ready state
   const isClusterReady: boolean = cephClusterObj[0]?.status?.phase === POOL_STATE.READY;
@@ -147,6 +153,7 @@ export const PoolBodyComponent = (props: StoragePoolBodyComponentPros) => {
               name="newPoolName"
               data-test="new-pool-name-textbox"
               required
+              disabled={state.isPoolEdit}
             />
           </div>
           <div className="form-group ceph-storage-pool__input">
@@ -189,6 +196,7 @@ export const PoolBodyComponent = (props: StoragePoolBodyComponentPros) => {
                     data-test="volume-type-dropdown"
                     onToggle={() => setVolumeTypeOpen(!isVolumeTypeOpen)}
                     toggleIndicator={CaretDownIcon}
+                    isDisabled={state.isPoolEdit}
                   >
                     {state.volumeType.toUpperCase() || 'Select device type'}
                   </DropdownToggle>

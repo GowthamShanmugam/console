@@ -10,12 +10,13 @@ import {
   LoadingInline,
   history,
   resourcePathFromModel,
+  ButtonBar,
 } from '@console/internal/components/utils';
 import {
   ClusterServiceVersionModel,
   ClusterServiceVersionKind,
 } from '@console/operator-lifecycle-manager';
-import { Alert, ActionGroup, Button } from '@patternfly/react-core';
+import { ActionGroup, Button } from '@patternfly/react-core';
 import { k8sCreate } from '@console/internal/module/k8s/resource';
 import { Modal } from '@console/shared/src/components/modal';
 
@@ -40,28 +41,35 @@ import './block-pool.scss';
 export const BlockPoolCreationPageFooter = (props: BlockPoolCreationPageFooterProps) => {
   const { state, dispatch, cancel } = props;
   const { t } = useTranslation();
-  const submitPoolCreation = (e: React.FormEvent<EventTarget>) => {
-    e.preventDefault();
+
+  const submitPoolCreation = () => {
     if (state.poolStatus === '') {
-      dispatch({ type: BlockPoolActionType.SET_POOL_CREATION_SUBMIT, payload: true });
+      dispatch({ type: BlockPoolActionType.SET_IS_SUBMITTED, payload: true });
     }
   };
 
   return (
-    <ActionGroup className="pf-c-form pf-c-form__actions--left">
-      <Button
-        type="button"
-        variant="primary"
-        data-test-id="modal-create-action"
-        onClick={submitPoolCreation}
-        isDisabled={checkRequiredValues(state)}
-      >
-        {t('ceph-storage-plugin~Create')}
-      </Button>
-      <Button type="button" variant="secondary" data-test-id="modal-cancel-action" onClick={cancel}>
-        {t('ceph-storage-plugin~Cancel')}
-      </Button>
-    </ActionGroup>
+    <ButtonBar errorMessage={state.errorMessage} inProgress={state.inprogress}>
+      <ActionGroup className="pf-c-form pf-c-form__actions--left">
+        <Button
+          type="button"
+          variant="primary"
+          data-test-id="modal-create-action"
+          onClick={submitPoolCreation}
+          isDisabled={checkRequiredValues(state)}
+        >
+          {t('ceph-storage-plugin~Create')}
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          data-test-id="modal-cancel-action"
+          onClick={cancel}
+        >
+          {t('ceph-storage-plugin~Cancel')}
+        </Button>
+      </ActionGroup>
+    </ButtonBar>
   );
 };
 
@@ -100,24 +108,25 @@ const BlockPoolCreationPage: React.FC<BlockPoolCreationPageProps> = ({ match }) 
 
   // Create new pool
   React.useEffect(() => {
-    if (state.isPoolCreationSubmitted) {
-      dispatch({ type: BlockPoolActionType.SET_POOL_CREATION_SUBMIT, payload: false });
+    if (state.isSubmitted) {
+      dispatch({ type: BlockPoolActionType.SET_IS_SUBMITTED, payload: false });
       const poolObj: StoragePoolKind = getPoolKindObj(state);
 
+      dispatch({ type: BlockPoolActionType.SET_INPROGRESS, payload: true });
       k8sCreate(CephBlockPoolModel, poolObj)
         .then(() => {
-          dispatch({ type: BlockPoolActionType.SET_INPROGRESS, payload: true });
+          dispatch({ type: BlockPoolActionType.SET_INPROGRESS, payload: false });
           history.push(`${storageClusterListPage}/${state.poolName}`);
         })
         .catch((err) => {
           dispatch({
             type: BlockPoolActionType.SET_ERROR_MESSAGE,
-            payload: getErrorMessage(err.message) || 'Could not create persistent volume claim.',
+            payload: getErrorMessage(err.message) || 'Could not create block pool.',
           });
           dispatch({ type: BlockPoolActionType.SET_INPROGRESS, payload: false });
         });
     }
-  }, [state, state.isPoolCreationSubmitted, storageClusterListPage]);
+  }, [state, state.isSubmitted, storageClusterListPage]);
 
   if (cephClusterObj[0]?.metadata.name === CEPH_EXTERNAL_CR_NAME) {
     return (
@@ -135,10 +144,9 @@ const BlockPoolCreationPage: React.FC<BlockPoolCreationPageProps> = ({ match }) 
         ]}
       >
         <strong>
-          {' '}
           {t(
             'ceph-storage-plugin~Pool creation is not available for openshift container storage external mode.',
-          )}{' '}
+          )}
         </strong>
       </Modal>
     );
@@ -177,14 +185,6 @@ const BlockPoolCreationPage: React.FC<BlockPoolCreationPageProps> = ({ match }) 
         {isLoaded && !loadError ? (
           <>
             <PoolBodyComponent cephClusterObj={cephClusterCSV} state={state} dispatch={dispatch} />
-            {state.errorMessage && (
-              <Alert
-                className="co-alert"
-                variant="danger"
-                title={t(`ceph-storage-plugin~${state.errorMessage}.`)}
-                isInline
-              />
-            )}
             <div className="ceph-block-pool__footer">
               <BlockPoolCreationPageFooter state={state} dispatch={dispatch} cancel={onClose} />
             </div>

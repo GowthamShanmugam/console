@@ -468,15 +468,11 @@ const plugin: Plugin<ConsumedExtensions> = [
       required: [LSO_DEVICE_DISCOVERY, OCS_ATTACHED_DEVICES_FLAG],
     },
   },
-<<<<<<< HEAD
   // Noobaa Related Plugins
-=======
->>>>>>> afd7f118a (Pool management list and creation)
   {
     type: 'Page/Route',
     properties: {
       exact: true,
-<<<<<<< HEAD
       path: `/k8s/ns/:ns/${ClusterServiceVersionModel.plural}/:appName/${referenceForModel(
         models.NooBaaBucketClassModel,
       )}/~new`,
@@ -744,14 +740,34 @@ const plugin: Plugin<ConsumedExtensions> = [
           // eslint-disable-next-line no-console
           .catch((e) => console.error(e)),
     },
-=======
+  },
+  {
+    type: 'Page/Route',
+    properties: {
+      exact: true,
       path: `/k8s/ns/:ns/${ClusterServiceVersionModel.plural}/:appName/${blockPoolObjectRef}/~new`,
       loader: () =>
         import('./components/block-pool/block-pool' /* webpackChunkName: "install-page" */).then(
           (m) => m.default,
         ),
     },
->>>>>>> afd7f118a (Pool management list and creation)
+  },
+  {
+    type: 'ClusterServiceVersion/Action',
+    properties: {
+      kind: 'CephBlockPool',
+      label: '%ceph-storage-plugin~Edit Block Pool%',
+      apiGroup: models.CephBlockPoolModel.apiGroup,
+      override: 'Edit',
+      callback: (kind, blockPoolConfig) => () => {
+        const blockPoolObject = { blockPoolConfig };
+        import('./components/modals/storage-pool-modal/block-pool-update-modal')
+          .then((m) => m.blockPoolUpdateModal(blockPoolObject))
+          .catch((e) => {
+            throw e;
+          });
+      },
+    },
   },
 ];
 

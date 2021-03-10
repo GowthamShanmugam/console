@@ -42,8 +42,6 @@ export const storagePool = {
       .last()
       .contains(`${replicaCount}-way Replication`)
       .click();
-    cy.byTestID('volume-type-dropdown').click();
-    cy.byTestID('ssd').click();
     cy.byTestID('compression-checkbox').check();
 
     // Create new pool

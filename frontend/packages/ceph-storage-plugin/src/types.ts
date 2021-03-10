@@ -148,7 +148,7 @@ export type CephClusterKind = K8sResourceCommon & {
   };
 };
 
-type CephDeviceClass = {
+export type CephDeviceClass = {
   name: string;
 };
 

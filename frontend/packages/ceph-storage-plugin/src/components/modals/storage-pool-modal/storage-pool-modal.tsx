@@ -88,8 +88,8 @@ export const StoragePoolModal = withHandlePromise((props: StoragePoolModalProps)
 
   // Create new pool
   React.useEffect(() => {
-    if (state.isPoolCreationSubmitted) {
-      dispatch({ type: BlockPoolActionType.SET_POOL_CREATION_SUBMIT, payload: false });
+    if (state.isSubmitted) {
+      dispatch({ type: BlockPoolActionType.SET_IS_SUBMITTED, payload: false });
       dispatch({ type: BlockPoolActionType.SET_POOL_STATUS, payload: POOL_PROGRESS.PROGRESS });
       const poolObj: StoragePoolKind = getPoolKindObj(state);
 
@@ -109,7 +109,7 @@ export const StoragePoolModal = withHandlePromise((props: StoragePoolModalProps)
         },
       );
     }
-  }, [handlePromise, state, state.isPoolCreationSubmitted]);
+  }, [handlePromise, state, state.isSubmitted]);
 
   return (
     <div className="modal-content modal-content--no-inner-scroll">
@@ -161,7 +161,7 @@ export const StoragePoolModalFooter = (props: StoragePoolFooterComponentProps) =
   const submitPoolCreation = (e: React.FormEvent<EventTarget>) => {
     e.preventDefault();
     if (state.poolStatus === '') {
-      dispatch({ type: BlockPoolActionType.SET_POOL_CREATION_SUBMIT, payload: true });
+      dispatch({ type: BlockPoolActionType.SET_IS_SUBMITTED, payload: true });
     }
   };
 

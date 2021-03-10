@@ -267,6 +267,7 @@
   "See data resiliency status": "See data resiliency status",
   "Are you sure you want to replace <1>{{diskName}}</1> ?": "Are you sure you want to replace <1>{{diskName}}</1> ?",
   "Replace": "Replace",
+  "Edit Pool": "Edit Pool",
   "A Storage pool is a logical entity providing elastic capacity to applications and workloads. Pools provide a means of supporting policies for access data resilience and storage efficiency.": "A Storage pool is a logical entity providing elastic capacity to applications and workloads. Pools provide a means of supporting policies for access data resilience and storage efficiency.",
   "Create New Storage Pool": "Create New Storage Pool",
   "Try Again": "Try Again",
@@ -471,5 +472,6 @@
   "Pool {name} was successfully created": "Pool {name} was successfully created",
   "An error occurred Pool {name} was not created": "An error occurred Pool {name} was not created",
   "Pool {name} creation timed out. Please check if ocs-operator and rook operator are running": "Pool {name} creation timed out. Please check if ocs-operator and rook operator are running",
-  "The creation of an OCS storage cluster is still in progress or has failed. Please try again after the storage cluster is ready to use.": "The creation of an OCS storage cluster is still in progress or has failed. Please try again after the storage cluster is ready to use."
+  "The creation of an OCS storage cluster is still in progress or has failed. Please try again after the storage cluster is ready to use.": "The creation of an OCS storage cluster is still in progress or has failed. Please try again after the storage cluster is ready to use.",
+  "Pool management tasks are not supported for default pool and openshift container storage external mode.": "Pool management tasks are not supported for default pool and openshift container storage external mode."
 }

@@ -12,9 +12,10 @@ export type BlockPoolState = {
   isCompressed: boolean;
   isArbiterCluster: boolean;
   volumeType: string;
-  isPoolCreationSubmitted: boolean;
+  isSubmitted: boolean;
   inprogress: boolean;
   errorMessage: string;
+  isPoolEdit: boolean;
 };
 
 export enum BlockPoolActionType {
@@ -24,9 +25,10 @@ export enum BlockPoolActionType {
   SET_POOL_COMPRESSED = 'SET_POOL_COMPRESSED',
   SET_POOL_ARBITER = 'SET_POOL_ARBITER',
   SET_POOL_VOLUME_TYPE = 'SET_POOL_VOLUME_TYPE',
-  SET_POOL_CREATION_SUBMIT = 'SET_POOL_CREATION_SUBMIT',
+  SET_IS_SUBMITTED = 'SET_IS_SUBMITTED',
   SET_INPROGRESS = 'SET_INPROGRESS',
   SET_ERROR_MESSAGE = 'SET_ERROR_MESSAGE',
+  SET_IS_POOL_EDIT = 'SET_IS_POOL_EDIT',
 }
 
 export type BlockPoolAction =
@@ -36,9 +38,10 @@ export type BlockPoolAction =
   | { type: BlockPoolActionType.SET_POOL_COMPRESSED; payload: boolean }
   | { type: BlockPoolActionType.SET_POOL_ARBITER; payload: boolean }
   | { type: BlockPoolActionType.SET_POOL_VOLUME_TYPE; payload: string }
-  | { type: BlockPoolActionType.SET_POOL_CREATION_SUBMIT; payload: boolean }
+  | { type: BlockPoolActionType.SET_IS_SUBMITTED; payload: boolean }
   | { type: BlockPoolActionType.SET_INPROGRESS; payload: boolean }
-  | { type: BlockPoolActionType.SET_ERROR_MESSAGE; payload: string };
+  | { type: BlockPoolActionType.SET_ERROR_MESSAGE; payload: string }
+  | { type: BlockPoolActionType.SET_IS_POOL_EDIT; payload: boolean };
 
 export const blockPoolInitialState: BlockPoolState = {
   poolName: 'sc-pool',
@@ -47,9 +50,10 @@ export const blockPoolInitialState: BlockPoolState = {
   isCompressed: false,
   isArbiterCluster: false,
   volumeType: '',
-  isPoolCreationSubmitted: false,
+  isSubmitted: false,
   inprogress: false,
   errorMessage: '',
+  isPoolEdit: false,
 };
 
 export const blockPoolReducer = (state: BlockPoolState, action: BlockPoolAction) => {
@@ -90,10 +94,10 @@ export const blockPoolReducer = (state: BlockPoolState, action: BlockPoolAction)
         volumeType: action.payload,
       };
     }
-    case BlockPoolActionType.SET_POOL_CREATION_SUBMIT: {
+    case BlockPoolActionType.SET_IS_SUBMITTED: {
       return {
         ...state,
-        isPoolCreationSubmitted: action.payload,
+        isSubmitted: action.payload,
       };
     }
     case BlockPoolActionType.SET_INPROGRESS: {
@@ -106,6 +110,12 @@ export const blockPoolReducer = (state: BlockPoolState, action: BlockPoolAction)
       return {
         ...state,
         errorMessage: action.payload,
+      };
+    }
+    case BlockPoolActionType.SET_IS_POOL_EDIT: {
+      return {
+        ...state,
+        isPoolEdit: action.payload,
       };
     }
     default:
